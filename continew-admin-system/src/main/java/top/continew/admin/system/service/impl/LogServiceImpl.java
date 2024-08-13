@@ -19,15 +19,13 @@ package top.continew.admin.system.service.impl;
 import cn.crane4j.annotation.AutoOperate;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Opt;
-import cn.hutool.core.text.CharSequenceUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import top.continew.admin.common.enums.DisEnableStatusEnum;
 import top.continew.admin.system.mapper.LogMapper;
@@ -43,7 +41,6 @@ import top.continew.admin.system.model.resp.log.OperationLogExportResp;
 import top.continew.admin.system.service.LogService;
 import top.continew.starter.core.util.validate.CheckUtils;
 import top.continew.starter.extension.crud.model.query.PageQuery;
-import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 import top.continew.starter.file.excel.util.ExcelUtils;
 
@@ -67,7 +64,9 @@ public class LogServiceImpl implements LogService {
     @Override
     public PageResp<LogResp> page(LogQuery query, PageQuery pageQuery) {
         QueryWrapper<LogDO> queryWrapper = this.buildQueryWrapper(query);
-        IPage<LogResp> page = baseMapper.selectLogPage(pageQuery.toPage(), queryWrapper);
+        queryWrapper.lambda().orderByDesc(LogDO::getCreateTime);
+        IPage<LogResp> page = baseMapper.selectLogPage(new Page<>(pageQuery.getPage(), pageQuery
+            .getSize()), queryWrapper);
         return PageResp.build(page);
     }
 
@@ -80,15 +79,14 @@ public class LogServiceImpl implements LogService {
     }
 
     @Override
-    public void exportLoginLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response) {
-        List<LoginLogExportResp> list = BeanUtil.copyToList(this.list(query, sortQuery), LoginLogExportResp.class);
+    public void exportLoginLog(LogQuery query, HttpServletResponse response) {
+        List<LoginLogExportResp> list = BeanUtil.copyToList(this.list(query), LoginLogExportResp.class);
         ExcelUtils.export(list, "导出登录日志数据", LoginLogExportResp.class, response);
     }
 
     @Override
-    public void exportOperationLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response) {
-        List<OperationLogExportResp> list = BeanUtil.copyToList(this
-            .list(query, sortQuery), OperationLogExportResp.class);
+    public void exportOperationLog(LogQuery query, HttpServletResponse response) {
+        List<OperationLogExportResp> list = BeanUtil.copyToList(this.list(query), OperationLogExportResp.class);
         ExcelUtils.export(list, "导出操作日志数据", OperationLogExportResp.class, response);
     }
 
@@ -115,30 +113,13 @@ public class LogServiceImpl implements LogService {
     /**
      * 查询列表
      *
-     * @param query     查询条件
-     * @param sortQuery 排序查询条件
+     * @param query 查询条件
      * @return 列表信息
      */
-    private List<LogResp> list(LogQuery query, SortQuery sortQuery) {
+    private List<LogResp> list(LogQuery query) {
         QueryWrapper<LogDO> queryWrapper = this.buildQueryWrapper(query);
-        this.sort(queryWrapper, sortQuery);
+        queryWrapper.lambda().orderByDesc(LogDO::getCreateTime);
         return baseMapper.selectLogList(queryWrapper);
-    }
-
-    /**
-     * 设置排序
-     *
-     * @param queryWrapper 查询条件封装对象
-     * @param sortQuery    排序查询条件
-     */
-    private void sort(QueryWrapper<LogDO> queryWrapper, SortQuery sortQuery) {
-        Sort sort = Opt.ofNullable(sortQuery).orElseGet(SortQuery::new).getSort();
-        for (Sort.Order order : sort) {
-            if (null != order) {
-                String property = order.getProperty();
-                queryWrapper.orderBy(true, order.isAscending(), CharSequenceUtil.toUnderlineCase(property));
-            }
-        }
     }
 
     /**

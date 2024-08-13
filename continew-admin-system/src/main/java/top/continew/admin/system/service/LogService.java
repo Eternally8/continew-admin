@@ -24,7 +24,6 @@ import top.continew.admin.system.model.resp.DashboardTotalResp;
 import top.continew.admin.system.model.resp.log.LogDetailResp;
 import top.continew.admin.system.model.resp.log.LogResp;
 import top.continew.starter.extension.crud.model.query.PageQuery;
-import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 
 import java.util.List;
@@ -58,20 +57,18 @@ public interface LogService {
     /**
      * 导出登录日志
      *
-     * @param query     查询条件
-     * @param sortQuery 排序查询条件
-     * @param response  响应对象
+     * @param query    查询条件
+     * @param response 响应对象
      */
-    void exportLoginLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response);
+    void exportLoginLog(LogQuery query, HttpServletResponse response);
 
     /**
      * 导出操作日志
      *
-     * @param query     查询条件
-     * @param sortQuery 排序查询条件
-     * @param response  响应对象
+     * @param query    查询条件
+     * @param response 响应对象
      */
-    void exportOperationLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response);
+    void exportOperationLog(LogQuery query, HttpServletResponse response);
 
     /**
      * 查询仪表盘总计信息

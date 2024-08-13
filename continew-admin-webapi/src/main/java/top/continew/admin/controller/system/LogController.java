@@ -34,7 +34,6 @@ import top.continew.admin.system.model.resp.log.LogDetailResp;
 import top.continew.admin.system.model.resp.log.LogResp;
 import top.continew.admin.system.service.LogService;
 import top.continew.starter.extension.crud.model.query.PageQuery;
-import top.continew.starter.extension.crud.model.query.SortQuery;
 import top.continew.starter.extension.crud.model.resp.PageResp;
 
 /**
@@ -70,15 +69,15 @@ public class LogController {
     @Operation(summary = "导出登录日志", description = "导出登录日志")
     @SaCheckPermission("monitor:log:export")
     @GetMapping("/export/login")
-    public void exportLoginLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response) {
-        baseService.exportLoginLog(query, sortQuery, response);
+    public void exportLoginLog(LogQuery query, HttpServletResponse response) {
+        baseService.exportLoginLog(query, response);
     }
 
     @ExcludeFromGracefulResponse
     @Operation(summary = "导出操作日志", description = "导出操作日志")
     @SaCheckPermission("monitor:log:export")
     @GetMapping("/export/operation")
-    public void exportOperationLog(LogQuery query, SortQuery sortQuery, HttpServletResponse response) {
-        baseService.exportOperationLog(query, sortQuery, response);
+    public void exportOperationLog(LogQuery query, HttpServletResponse response) {
+        baseService.exportOperationLog(query, response);
     }
 }
